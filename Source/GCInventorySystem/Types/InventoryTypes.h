@@ -30,6 +30,9 @@ struct FItemRecipeElements
 	FItemRecipeElements() {}
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	float CraftedQuantity = 1.f;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	TMap<FGameplayTag, float> RecipeElements;
 };
 
