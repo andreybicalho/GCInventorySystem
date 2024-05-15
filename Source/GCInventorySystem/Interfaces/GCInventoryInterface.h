@@ -5,6 +5,8 @@
 #include "UObject/Interface.h"
 #include "GCInventoryInterface.generated.h"
 
+class UGCActorInventoryComponent;
+
 struct FGameplayTag;
 
 // This class does not need to be modified.
@@ -39,4 +41,6 @@ public:
 	// Logic that the owner will execute when an item is dropped from the inventory (Does not call Item Removed)
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void ItemDropped(const FGameplayTag& itemTag, float itemStack);
+
+	virtual UGCActorInventoryComponent* GetInventoryComponent() const = 0;
 };
