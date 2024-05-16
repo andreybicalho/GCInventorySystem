@@ -28,7 +28,6 @@ public:
 	UGCActorInventoryComponent(const FObjectInitializer& ObjectInitializer);
 
 	// Begin UActorComponent Interface
-	virtual void InitializeComponent() override;
 	virtual void BeginPlay() override;
 	// End UActorComponent Interface
 
@@ -84,18 +83,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InventoryComponent|Crafting")
 	bool CanItemBeCrafted(FGameplayTag itemTag);
 
-	// dev commands
-	UFUNCTION()
-	void DevCommand_AddItem(const TArray<FString>& args);
-
-	UFUNCTION(Server, Reliable)
-	void ServerAddItem(const FGameplayTag& itemTag, const float itemStack);
-
-	UFUNCTION()
-	void DevCommand_CraftItem(const TArray<FString>& args);
-
-	UFUNCTION(Server, Reliable)
-	void ServerCraftItem(const FGameplayTag& itemTag);
+	UFUNCTION(BlueprintCallable, Category = "InventoryComponent")
+	void BindEventToItemUpdated(const FGameplayTag itemTag, const UObject* delegateOwner, const FDynamicOnStackItemReplicated& eventDelegate);
 
 protected:
 

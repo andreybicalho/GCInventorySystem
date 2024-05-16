@@ -4,7 +4,6 @@
 #include "Interfaces/GCInventoryInterface.h"
 #include "Subsystems/GCInventoryGISSubsystems.h"
 #include <Net/UnrealNetwork.h>
-#include <Logging/StructuredLog.h>
 
 DEFINE_LOG_CATEGORY(LogGCActorInventoryComponent);
 
@@ -17,22 +16,8 @@ UGCActorInventoryComponent::UGCActorInventoryComponent(const FObjectInitializer&
 
 	SetIsReplicatedByDefault(true);
 	PrimaryComponentTick.bCanEverTick = false;
-
-	bWantsInitializeComponent = true;
 }
 
-void UGCActorInventoryComponent::InitializeComponent()
-{
-	Super::InitializeComponent();
-
-	auto devCommandAddItemDelegate = FConsoleCommandWithArgsDelegate::CreateUObject(this, &ThisClass::DevCommand_AddItem);
-	IConsoleManager::Get().RegisterConsoleCommand(TEXT("add-item"), TEXT("<item gameplay tag>"), devCommandAddItemDelegate);
-
-	auto devCommandCraftItemDelegate = FConsoleCommandWithArgsDelegate::CreateUObject(this, &ThisClass::DevCommand_CraftItem);
-	IConsoleManager::Get().RegisterConsoleCommand(TEXT("craft-item"), TEXT("<item gameplay tag>"), devCommandCraftItemDelegate);
-}
-
-// Called when the game starts
 void UGCActorInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -199,6 +184,11 @@ bool UGCActorInventoryComponent::CanItemBeCrafted(FGameplayTag itemTag)
 	return false;
 }
 
+void UGCActorInventoryComponent::BindEventToItemUpdated(const FGameplayTag itemTag, const UObject* delegateOwner, const FDynamicOnStackItemReplicated& eventDelegate)
+{
+	HeldItemTags.BindDelegateToStackReplicated(itemTag, eventDelegate, delegateOwner);
+}
+
 bool UGCActorInventoryComponent::IsItemCraftable(FItemRecipeElements recipe)
 {
 	bool bHasMaterials = true;
@@ -220,80 +210,4 @@ bool UGCActorInventoryComponent::IsItemCraftable(FItemRecipeElements recipe)
 	}
 
 	return bHasMaterials;
-}
-
-// dev commands
-void UGCActorInventoryComponent::DevCommand_AddItem(const TArray<FString>& args)
-{
-	if (args.Num() < 1)
-	{
-		UE_LOGFMT(LogGCActorInventoryComponent, Error, "{0}: Missing args.", FString(ANSI_TO_TCHAR(__FUNCTION__)));
-		return;
-	}
-
-	const FString& itemIdString = args[0];
-	const FName itemId = FName(itemIdString);
-	const int32 amount = args.IsValidIndex(1) ? FCString::Atoi(*args[1]) : 1;
-
-	if (!FGameplayTag::IsValidGameplayTagString(itemIdString))
-	{
-		UE_LOGFMT(LogGCActorInventoryComponent, Error, "{0}: Not a valid gameplay tag.", FString(ANSI_TO_TCHAR(__FUNCTION__)));
-		return;
-	}
-
-	const auto itemTag = FGameplayTag::RequestGameplayTag(itemId);	
-
-	if (itemTag.IsValid())
-	{
-		if (GetOwner()->HasAuthority())
-		{
-			AddItemToInventory(itemTag, amount);
-		}
-		else
-		{
-			ServerAddItem(itemTag, amount);
-		}
-	}
-}
-
-void UGCActorInventoryComponent::ServerAddItem_Implementation(const FGameplayTag& itemTag, const float itemStack)
-{
-	AddItemToInventory(itemTag, itemStack);
-}
-
-void UGCActorInventoryComponent::DevCommand_CraftItem(const TArray<FString>& args)
-{
-	if (args.Num() <= 0)
-	{
-		UE_LOGFMT(LogGCActorInventoryComponent, Error, "{0}: Missing args.", FString(ANSI_TO_TCHAR(__FUNCTION__)));
-		return;
-	}
-
-	const FString& itemIdString = args[0];
-	const FName itemId = FName(itemIdString);
-
-	if (!FGameplayTag::IsValidGameplayTagString(itemIdString))
-	{
-		UE_LOGFMT(LogGCActorInventoryComponent, Error, "{0}: Not a valid gameplay tag.", FString(ANSI_TO_TCHAR(__FUNCTION__)));
-		return;
-	}
-
-	const auto itemTag = FGameplayTag::RequestGameplayTag(itemId);
-
-	if (itemTag.IsValid())
-	{
-		if (GetOwner()->HasAuthority())
-		{
-			CraftItem(itemTag);
-		}
-		else
-		{
-			ServerCraftItem(itemTag);
-		}
-	}
-}
-
-void UGCActorInventoryComponent::ServerCraftItem_Implementation(const FGameplayTag& itemTag)
-{
-	CraftItem(itemTag);
 }
