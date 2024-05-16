@@ -27,6 +27,9 @@ void UGCActorInventoryComponent::InitializeComponent()
 
 	auto devCommandAddItemDelegate = FConsoleCommandWithArgsDelegate::CreateUObject(this, &ThisClass::DevCommand_AddItem);
 	IConsoleManager::Get().RegisterConsoleCommand(TEXT("add-item"), TEXT("<item gameplay tag>"), devCommandAddItemDelegate);
+
+	auto devCommandCraftItemDelegate = FConsoleCommandWithArgsDelegate::CreateUObject(this, &ThisClass::DevCommand_CraftItem);
+	IConsoleManager::Get().RegisterConsoleCommand(TEXT("craft-item"), TEXT("<item gameplay tag>"), devCommandCraftItemDelegate);
 }
 
 // Called when the game starts
