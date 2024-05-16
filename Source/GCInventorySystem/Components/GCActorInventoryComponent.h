@@ -7,6 +7,8 @@
 
 #include "GCActorInventoryComponent.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogGCActorInventoryComponent, Log, All);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnItemGranted, FGameplayTag, itemName, float, itemStack, AActor*, ownerReference);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnItemUsed, FGameplayTag, itemName, float, itemStack, AActor*, ownerReference);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnItemRemoved, FGameplayTag, itemName, float, itemStack, AActor*, ownerReference);
@@ -25,8 +27,10 @@ public:
 
 	UGCActorInventoryComponent(const FObjectInitializer& ObjectInitializer);
 
-	// Called when the game starts
+	// Begin UActorComponent Interface
+	virtual void InitializeComponent() override;
 	virtual void BeginPlay() override;
+	// End UActorComponent Interface
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -79,6 +83,19 @@ public:
 	// Function called to craft the desired item.
 	UFUNCTION(BlueprintCallable, Category = "InventoryComponent|Crafting")
 	bool CanItemBeCrafted(FGameplayTag itemTag);
+
+	// dev commands
+	UFUNCTION()
+	void DevCommand_AddItem(const TArray<FString>& args);
+
+	UFUNCTION(Server, Reliable)
+	void ServerAddItem(const FGameplayTag& itemTag, const float itemStack);
+
+	UFUNCTION()
+	void DevCommand_CraftItem(const TArray<FString>& args);
+
+	UFUNCTION(Server, Reliable)
+	void ServerCraftItem(const FGameplayTag& itemTag);
 
 protected:
 
