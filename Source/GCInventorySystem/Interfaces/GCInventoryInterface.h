@@ -41,6 +41,7 @@ public:
 	// Logic that the owner will execute when an item is dropped from the inventory (Does not call Item Removed)
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void ItemDropped(const FGameplayTag& itemTag, float itemStack);
+	virtual void ItemDropped_Implementation(const FGameplayTag& itemTag, float itemStack) = 0;
 
 	virtual UGCActorInventoryComponent* GetInventoryComponent() const = 0;
 };
