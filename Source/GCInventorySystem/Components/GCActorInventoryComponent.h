@@ -65,6 +65,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InventoryComponent")
 	bool IsItemInInventory(FGameplayTag itemTag) const;
 
+	// Returns true if the input item is in the inventory
+	UFUNCTION(BlueprintCallable, Category = "InventoryComponent")
+	bool ContainsItemInInventory(const FGameplayTag& itemTag, const float amount = 1.f) const;
+
 	// Returns the current stack of the input item from the inventory. 0 if the player doesn't have the item.
 	UFUNCTION(BlueprintCallable, Category = "InventoryComponent")
 	float GetItemStack(FGameplayTag itemTag) const;

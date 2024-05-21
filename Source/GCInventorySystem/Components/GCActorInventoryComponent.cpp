@@ -68,7 +68,7 @@ void UGCActorInventoryComponent::DropItemFromInventory(FGameplayTag itemTag, flo
 {
 	const auto ownerActor = GetOwner();
 
-	if (ownerActor && ownerActor->GetClass()->ImplementsInterface(UGCInventoryInterface::StaticClass()) && IsItemInInventory(itemTag))
+	if (ownerActor && ownerActor->GetClass()->ImplementsInterface(UGCInventoryInterface::StaticClass()) && ContainsItemInInventory(itemTag, itemStack))
 	{
 		HeldItemTags.RemoveStack(itemTag, itemStack);
 
@@ -126,6 +126,11 @@ void UGCActorInventoryComponent::ClearInventory()
 bool UGCActorInventoryComponent::IsItemInInventory(FGameplayTag itemTag) const
 {
 	return HeldItemTags.ContainsTag(itemTag);
+}
+
+bool UGCActorInventoryComponent::ContainsItemInInventory(const FGameplayTag& itemTag, const float amount /*= 1.f*/) const
+{	
+	return HeldItemTags.ContainsTag(itemTag) && HeldItemTags.GetStackCount(itemTag) >= amount;
 }
 
 float UGCActorInventoryComponent::GetItemStack(FGameplayTag itemTag) const
