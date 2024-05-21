@@ -137,6 +137,7 @@ void FGCGameplayTagStackContainer::PostReplicatedAdd(const TArrayView<int32> Add
 		const FGCGameplayTagStack& Stack = Stacks[Index];
 		TagToCountMap.Add(Stack.Tag, Stack.StackCount);
 		OnStackItemAdded.Broadcast(Stack.Tag);
+		OnTagStackUpdated.ExecuteIfBound(Stack.Tag, Stack.StackCount);
 	}
 }
 
@@ -149,6 +150,7 @@ void FGCGameplayTagStackContainer::PostReplicatedChange(const TArrayView<int32> 
 			const FGCGameplayTagStack& Stack = Stacks[Index];
 			TagToCountMap[Stack.Tag] = Stack.StackCount;
 			Stack.OnChanged.Broadcast();
+			OnTagStackUpdated.ExecuteIfBound(Stack.Tag, Stack.StackCount);
 		}
 	}
 }
@@ -196,4 +198,13 @@ void FGCGameplayTagStackContainer::BindDelegateToStackReplicated(const FGameplay
 				}
 			});
 	}
+}
+
+void FGCGameplayTagStackContainer::BindDelegateToOnTagStackUpdated(FOnTagStackUpdatedDynamicDelegate eventCallbackDelegate)
+{
+	OnTagStackUpdated = FOnTagStackUpdatedDelegate::CreateWeakLambda(eventCallbackDelegate.GetUObject(),
+		[eventCallbackDelegate](const FGameplayTag& itemTag, const float amount)
+		{
+			eventCallbackDelegate.ExecuteIfBound(itemTag, amount);
+		});
 }

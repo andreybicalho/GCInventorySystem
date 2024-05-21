@@ -38,7 +38,7 @@ void UGCActorInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	DOREPLIFETIME(ThisClass, HeldItemTags);
 }
 
-void UGCActorInventoryComponent::AddItemToInventory(FGameplayTag itemTag, float itemStack)
+bool UGCActorInventoryComponent::AddItemToInventory(FGameplayTag itemTag, float itemStack)
 {
 	const auto ownerActor = GetOwner();
 
@@ -49,7 +49,11 @@ void UGCActorInventoryComponent::AddItemToInventory(FGameplayTag itemTag, float 
 		IGCInventoryInterface::Execute_ItemGranted(ownerActor, itemTag, itemStack);
 
 		OnItemGranted.Broadcast(itemTag, itemStack, ownerActor);
+
+		return true;
 	}
+
+	return false;
 }
 
 void UGCActorInventoryComponent::UseItemFromInventory(FGameplayTag itemTag, float itemStack)
@@ -155,7 +159,7 @@ TMap<FGameplayTag, float> UGCActorInventoryComponent::GetAllItemsOnInventory() c
 	return currentItemsMap;
 }
 
-void UGCActorInventoryComponent::CraftItem(FGameplayTag itemTag)
+bool UGCActorInventoryComponent::CraftItem(FGameplayTag itemTag)
 {
 	const auto ownerActor = GetOwner();
 
@@ -170,9 +174,16 @@ void UGCActorInventoryComponent::CraftItem(FGameplayTag itemTag)
 				RemoveItemFromInventory(recipeElement.Key, recipeElement.Value);
 			}
 
-			AddItemToInventory(itemTag, itemRecipe.CraftedQuantity);
+			if (AddItemToInventory(itemTag, itemRecipe.CraftedQuantity))
+			{
+				IGCInventoryInterface::Execute_ItemCrafted(ownerActor, itemTag, itemRecipe.CraftedQuantity);
+
+				return true;
+			}			
 		}
 	}
+
+	return false;
 }
 
 bool UGCActorInventoryComponent::CanItemBeCrafted(FGameplayTag itemTag)
@@ -192,6 +203,11 @@ bool UGCActorInventoryComponent::CanItemBeCrafted(FGameplayTag itemTag)
 void UGCActorInventoryComponent::BindEventToItemUpdated(const FGameplayTag itemTag, const UObject* delegateOwner, const FDynamicOnStackItemReplicated& eventDelegate)
 {
 	HeldItemTags.BindDelegateToStackReplicated(itemTag, eventDelegate, delegateOwner);
+}
+
+void UGCActorInventoryComponent::BindEventToItemTagStackUpdated(FOnTagStackUpdatedDynamicDelegate eventDelegate)
+{
+	HeldItemTags.BindDelegateToOnTagStackUpdated(eventDelegate);
 }
 
 bool UGCActorInventoryComponent::IsItemCraftable(FItemRecipeElements recipe)

@@ -14,6 +14,10 @@ DECLARE_MULTICAST_DELEGATE(FOnStackItemReplicated);
 DECLARE_DYNAMIC_DELEGATE(FDynamicOnStackItemReplicated);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnStackItemAdded, const FGameplayTag& tag);
 
+// allows clients to get notification whenever a tag stack is updated
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FOnTagStackUpdatedDynamicDelegate, const FGameplayTag&, tag, const float, amount);
+DECLARE_DELEGATE_TwoParams(FOnTagStackUpdatedDelegate, const FGameplayTag& tag, const float amount);
+
 /**
  * Represents one stack of a gameplay tag (tag + count)
  */
@@ -97,8 +101,12 @@ public:
 	FGCGameplayTagStack* GetTagStackItem(const FGameplayTag& tag);
 
 	void BindDelegateToStackReplicated(const FGameplayTag& tag, const FDynamicOnStackItemReplicated& onStackItemReplicated, const UObject* ownerUObject);
+	
+	void BindDelegateToOnTagStackUpdated(FOnTagStackUpdatedDynamicDelegate eventCallbackDelegate);
 
 	FOnStackItemAdded OnStackItemAdded;
+
+	FOnTagStackUpdatedDelegate OnTagStackUpdated;
 
 private:
 

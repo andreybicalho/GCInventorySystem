@@ -35,7 +35,7 @@ public:
 
 	// Function called to add an item to the inventory with a specific stack
 	UFUNCTION(BlueprintCallable, Category = "InventoryComponent")
-	void AddItemToInventory(FGameplayTag itemTag, float itemStack);
+	bool AddItemToInventory(FGameplayTag itemTag, float itemStack);
 
 	// Function called to use a specific stack of items from the inventory
 	UFUNCTION(BlueprintCallable, Category = "InventoryComponent")
@@ -81,7 +81,7 @@ public:
 
 	// Function called to craft the desired item.
 	UFUNCTION(BlueprintCallable, Category = "InventoryComponent|Crafting")
-	void CraftItem(FGameplayTag itemTag);
+	bool CraftItem(FGameplayTag itemTag);
 
 	// Function called to craft the desired item.
 	UFUNCTION(BlueprintCallable, Category = "InventoryComponent|Crafting")
@@ -89,6 +89,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "InventoryComponent")
 	void BindEventToItemUpdated(const FGameplayTag itemTag, const UObject* delegateOwner, const FDynamicOnStackItemReplicated& eventDelegate);
+
+	UFUNCTION(BlueprintCallable, Category = "InventoryComponent")
+	void BindEventToItemTagStackUpdated(const FOnTagStackUpdatedDynamicDelegate eventDelegate);
 
 protected:
 

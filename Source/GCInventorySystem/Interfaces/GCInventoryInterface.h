@@ -43,5 +43,9 @@ public:
 	void ItemDropped(const FGameplayTag& itemTag, float itemStack);
 	virtual void ItemDropped_Implementation(const FGameplayTag& itemTag, float itemStack) = 0;
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void ItemCrafted(const FGameplayTag& itemTag, const float amount);
+	virtual void ItemCrafted_Implementation(const FGameplayTag& itemTag, const float amount) = 0;
+
 	virtual UGCActorInventoryComponent* GetInventoryComponent() const = 0;
 };
