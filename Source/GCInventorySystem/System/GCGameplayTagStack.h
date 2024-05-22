@@ -73,7 +73,7 @@ public:
 	// Removes all the elements in the stack
 	void ClearStack();
 
-	TArray<FGCGameplayTagStack> GetGameplayTagStackList() const;
+	const TArray<FGCGameplayTagStack>& GetGameplayTagStackList() const;
 
 	// Returns the stack count of the specified tag (or 0 if the tag is not present)
 	float GetStackCount(FGameplayTag Tag) const

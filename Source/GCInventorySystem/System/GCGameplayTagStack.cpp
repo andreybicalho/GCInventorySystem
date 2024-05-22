@@ -115,7 +115,7 @@ void FGCGameplayTagStackContainer::ClearStack()
 	}
 }
 
-TArray<FGCGameplayTagStack> FGCGameplayTagStackContainer::GetGameplayTagStackList() const
+const TArray<FGCGameplayTagStack>& FGCGameplayTagStackContainer::GetGameplayTagStackList() const
 {
 	return Stacks;
 }

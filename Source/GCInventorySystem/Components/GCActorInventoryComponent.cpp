@@ -84,7 +84,7 @@ void UGCActorInventoryComponent::DropItemFromInventory(FGameplayTag itemTag, flo
 
 void UGCActorInventoryComponent::DropAllItemsFromInventory()
 {
-	const auto heldItems = HeldItemTags.GetGameplayTagStackList();
+	const auto& heldItems = HeldItemTags.GetGameplayTagStackList();
 
 	if (heldItems.Num() > 0)
 	{
@@ -111,7 +111,7 @@ void UGCActorInventoryComponent::RemoveItemFromInventory(FGameplayTag itemTag, f
 
 void UGCActorInventoryComponent::RemoveAllItemsFromInventory()
 {
-	const auto heldItems = HeldItemTags.GetGameplayTagStackList();
+	const auto& heldItems = HeldItemTags.GetGameplayTagStackList();
 
 	if (heldItems.Num() > 0)
 	{
@@ -146,7 +146,7 @@ TMap<FGameplayTag, float> UGCActorInventoryComponent::GetAllItemsOnInventory() c
 {
 	TMap<FGameplayTag, float> currentItemsMap;
 
-	const auto currentItemsArray = HeldItemTags.GetGameplayTagStackList();
+	const auto& currentItemsArray = HeldItemTags.GetGameplayTagStackList();
 
 	if (currentItemsArray.Num() > 0)
 	{
@@ -157,6 +157,20 @@ TMap<FGameplayTag, float> UGCActorInventoryComponent::GetAllItemsOnInventory() c
 	}
 
 	return currentItemsMap;
+}
+
+float UGCActorInventoryComponent::GetTotalAmountItems() const
+{
+	float total = 0.0f;
+
+	const auto& items = HeldItemTags.GetGameplayTagStackList();
+
+	for (const auto& itemStack : items)
+	{
+		total += itemStack.GetStackCount();
+	}
+
+	return total;
 }
 
 bool UGCActorInventoryComponent::CraftItem(FGameplayTag itemTag)

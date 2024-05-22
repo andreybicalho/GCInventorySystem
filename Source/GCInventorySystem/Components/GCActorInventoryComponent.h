@@ -77,6 +77,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InventoryComponent")
 	TMap<FGameplayTag, float> GetAllItemsOnInventory() const;
 
+	UFUNCTION(BlueprintCallable, Category = "InventoryComponent")
+	float GetTotalAmountItems() const;
+
 	//~ Crafting related functions
 
 	// Function called to craft the desired item.
