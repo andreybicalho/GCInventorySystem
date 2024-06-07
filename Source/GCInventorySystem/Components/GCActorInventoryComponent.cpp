@@ -92,6 +92,10 @@ void UGCActorInventoryComponent::DropAllItemsFromInventory()
 		{
 			DropItemFromInventory(itemStack.GetGameplayTag(), itemStack.GetStackCount());
 		}
+
+		IGCInventoryInterface::Execute_AllItemsDropped(GetOwner());
+
+		OnDropAllItemsFromInventoryDelegate.Broadcast();
 	}
 }
 
@@ -200,7 +204,33 @@ bool UGCActorInventoryComponent::CraftItem(FGameplayTag itemTag)
 	return false;
 }
 
-bool UGCActorInventoryComponent::CanItemBeCrafted(FGameplayTag itemTag)
+bool UGCActorInventoryComponent::ConsumeItemRecipe(const FGameplayTag& itemTag)
+{
+	const auto ownerActor = GetOwner();
+
+	if (auto inventorySubsystem = UGCInventoryGISSubsystems::Get(ownerActor))
+	{
+		const auto itemRecipe = inventorySubsystem->GetItemRecipe(itemTag);
+
+		if (!IsItemCraftable(itemRecipe))
+		{
+			return false;
+		}
+
+		for (const auto& recipeElement : itemRecipe.RecipeElements)
+		{
+			RemoveItemFromInventory(recipeElement.Key, recipeElement.Value);
+		}
+
+		IGCInventoryInterface::Execute_ItemRecipeConsumed(ownerActor, itemTag);
+		
+		return true;
+	}
+
+	return false;
+}
+
+bool UGCActorInventoryComponent::CanItemBeCrafted(FGameplayTag itemTag) const
 {
 	const auto ownerActor = GetOwner();
 
@@ -224,7 +254,7 @@ void UGCActorInventoryComponent::BindEventToItemTagStackUpdated(FOnTagStackUpdat
 	HeldItemTags.BindDelegateToOnTagStackUpdated(eventDelegate);
 }
 
-bool UGCActorInventoryComponent::IsItemCraftable(FItemRecipeElements recipe)
+bool UGCActorInventoryComponent::IsItemCraftable(const FItemRecipeElements& recipe) const
 {
 	bool bHasMaterials = true;
 
@@ -245,4 +275,46 @@ bool UGCActorInventoryComponent::IsItemCraftable(FItemRecipeElements recipe)
 	}
 
 	return bHasMaterials;
+}
+
+int32 UGCActorInventoryComponent::FindMaxCraftableAmount(const FGameplayTag& itemTag) const
+{
+	const auto ownerActor = GetOwner();
+
+	if (const auto inventorySubsystem = UGCInventoryGISSubsystems::Get(ownerActor))
+	{
+		const auto itemRecipe = inventorySubsystem->GetItemRecipe(itemTag);
+
+		if (!IsItemCraftable(itemRecipe))
+		{
+			return 0;
+		}
+
+		TArray<int32> maxNumPerIngredient;
+		maxNumPerIngredient.Reserve(itemRecipe.RecipeElements.Num());
+
+		// find max per ingredient
+		for (const auto& element : itemRecipe.RecipeElements)
+		{
+			const auto& ingredientItemTag = element.Key;
+			const float& ingredientAmount = element.Value;
+
+			const float currentAmountInInventory = GetItemStack(ingredientItemTag);
+
+			const float maxNum = currentAmountInInventory / ingredientAmount;
+
+			maxNumPerIngredient.Add(static_cast<int32>(maxNum));
+		}
+
+		// the minimum amount of the ingredients is the maximum that we can craft for that 
+		maxNumPerIngredient.Sort(
+			[](const int32 a, const int32 b) 
+			{
+				return a < b;
+			});
+
+		return !maxNumPerIngredient.IsEmpty() ? maxNumPerIngredient[0] : 0;
+	}
+
+	return 0;
 }

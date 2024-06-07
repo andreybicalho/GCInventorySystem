@@ -12,6 +12,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogGCActorInventoryComponent, Log, All);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnItemGranted, FGameplayTag, itemName, float, itemStack, AActor*, ownerReference);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnItemUsed, FGameplayTag, itemName, float, itemStack, AActor*, ownerReference);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnItemRemoved, FGameplayTag, itemName, float, itemStack, AActor*, ownerReference);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDropAllItemsFromInventoryDelegate);
 
 /**
  *  Inventory component used to manage the inventory of players during the game.
@@ -86,9 +87,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InventoryComponent|Crafting")
 	bool CraftItem(FGameplayTag itemTag);
 
+	bool ConsumeItemRecipe(const FGameplayTag& itemTag);
+
 	// Function called to craft the desired item.
 	UFUNCTION(BlueprintCallable, Category = "InventoryComponent|Crafting")
-	bool CanItemBeCrafted(FGameplayTag itemTag);
+	bool CanItemBeCrafted(FGameplayTag itemTag) const;
+
+	UFUNCTION(BlueprintCallable, Category = "InventoryComponent|Crafting")
+	int32 FindMaxCraftableAmount(const FGameplayTag& itemTag) const;
 
 	UFUNCTION(BlueprintCallable, Category = "InventoryComponent")
 	void BindEventToItemUpdated(const FGameplayTag itemTag, const UObject* delegateOwner, const FDynamicOnStackItemReplicated& eventDelegate);
@@ -98,18 +104,21 @@ public:
 
 protected:
 
-	bool IsItemCraftable(FItemRecipeElements recipe);
+	bool IsItemCraftable(const FItemRecipeElements& recipe) const;
 
 public:
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "Inventory")
 	FOnItemGranted OnItemGranted;
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "Inventory")
 	FOnItemUsed OnItemUsed;
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, Category = "Inventory")
 	FOnItemRemoved OnItemRemoved;
+
+	UPROPERTY(BlueprintAssignable, Category = "Inventory")
+	FOnDropAllItemsFromInventoryDelegate OnDropAllItemsFromInventoryDelegate;
 
 protected:
 

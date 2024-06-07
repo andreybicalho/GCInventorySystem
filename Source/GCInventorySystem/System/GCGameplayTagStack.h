@@ -22,7 +22,7 @@ DECLARE_DELEGATE_TwoParams(FOnTagStackUpdatedDelegate, const FGameplayTag& tag, 
  * Represents one stack of a gameplay tag (tag + count)
  */
 USTRUCT(BlueprintType)
-struct FGCGameplayTagStack : public FFastArraySerializerItem
+struct GCINVENTORYSYSTEM_API FGCGameplayTagStack : public FFastArraySerializerItem
 {
 	GENERATED_BODY()
 
@@ -53,7 +53,7 @@ private:
 
 /** Container of gameplay tag stacks */
 USTRUCT(BlueprintType)
-struct FGCGameplayTagStackContainer : public FFastArraySerializer
+struct GCINVENTORYSYSTEM_API FGCGameplayTagStackContainer : public FFastArraySerializer
 {
 	GENERATED_BODY()
 
