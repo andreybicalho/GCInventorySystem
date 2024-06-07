@@ -84,11 +84,11 @@ void UGCActorInventoryComponent::DropItemFromInventory(FGameplayTag itemTag, flo
 
 void UGCActorInventoryComponent::DropAllItemsFromInventory()
 {
-	const auto& heldItems = HeldItemTags.GetGameplayTagStackList();
+	const auto copiedHeldItems = HeldItemTags.GetGameplayTagStackList();
 
-	if (heldItems.Num() > 0)
+	if (copiedHeldItems.Num() > 0)
 	{
-		for (const auto& itemStack : heldItems)
+		for (const auto& itemStack : copiedHeldItems)
 		{
 			DropItemFromInventory(itemStack.GetGameplayTag(), itemStack.GetStackCount());
 		}
@@ -115,11 +115,11 @@ void UGCActorInventoryComponent::RemoveItemFromInventory(FGameplayTag itemTag, f
 
 void UGCActorInventoryComponent::RemoveAllItemsFromInventory()
 {
-	const auto& heldItems = HeldItemTags.GetGameplayTagStackList();
+	const auto copiedHeldItems = HeldItemTags.GetGameplayTagStackList();
 
-	if (heldItems.Num() > 0)
+	if (copiedHeldItems.Num() > 0)
 	{
-		for (const auto& itemStack : heldItems)
+		for (const auto& itemStack : copiedHeldItems)
 		{
 			RemoveItemFromInventory(itemStack.GetGameplayTag(), itemStack.GetStackCount());
 		}

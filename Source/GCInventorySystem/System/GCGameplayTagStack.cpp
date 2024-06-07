@@ -127,6 +127,7 @@ void FGCGameplayTagStackContainer::PreReplicatedRemove(const TArrayView<int32> R
 		const FGameplayTag Tag = Stacks[Index].Tag;
 		TagToCountMap.Remove(Tag);
 		Stacks[Index].OnChanged.Broadcast();
+		OnTagStackUpdated.ExecuteIfBound(Tag, static_cast<int32>(0));
 	}
 }
 
